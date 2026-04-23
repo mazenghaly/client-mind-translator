@@ -11,6 +11,7 @@ import { generateClientConcept } from "@/lib/generateConcept";
 import StyleSelector from "./StyleSelector";
 import FormStep from "./FormStep";
 import OutputScreen from "./OutputScreen";
+import PriceEstimator from "./PriceEstimator";
 
 const TOTAL_STEPS = 6;
 
@@ -86,9 +87,14 @@ export default function StepWizard() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        <main className="flex-1 flex items-start justify-center px-4 py-8">
-          <div className="w-full max-w-3xl">
-            <OutputScreen result={result} onReset={handleReset} />
+        <main className="flex-1 px-4 py-8">
+          <div className="max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
+              <OutputScreen result={result} onReset={handleReset} />
+              <div className="lg:sticky lg:top-24">
+                <PriceEstimator formData={formData} />
+              </div>
+            </div>
           </div>
         </main>
       </div>
@@ -127,145 +133,142 @@ export default function StepWizard() {
     <div className="min-h-screen flex flex-col">
       <Header />
 
-      <main className="flex-1 flex flex-col items-center px-4 py-6">
-        <div className="w-full max-w-2xl">
-          {/* Progress */}
-          <div className="mb-8 space-y-3">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-[var(--color-text-muted)] font-medium">
-                Step {currentStep} of {TOTAL_STEPS}
-              </span>
-              <span className="text-[var(--color-text-muted)]">
-                {STEP_TITLES[currentStep - 1]}
-              </span>
-            </div>
-            <div className="h-1.5 rounded-full bg-[var(--color-bg-card)] overflow-hidden">
-              <div
-                className="h-full rounded-full progress-bar-fill transition-all duration-500 ease-out"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+      <main className="flex-1 px-4 py-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
 
-            {/* Step dots */}
-            <div className="flex justify-between px-1">
-              {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(
-                (step) => (
+            {/* ── Left: Wizard ── */}
+            <div className="w-full">
+              {/* Progress */}
+              <div className="mb-8 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[var(--color-text-muted)] font-medium">
+                    Step {currentStep} of {TOTAL_STEPS}
+                  </span>
+                  <span className="text-[var(--color-text-muted)]">
+                    {STEP_TITLES[currentStep - 1]}
+                  </span>
+                </div>
+                <div className="h-1.5 rounded-full bg-[var(--color-bg-card)] overflow-hidden">
                   <div
-                    key={step}
-                    className={`
-                    w-2 h-2 rounded-full transition-all duration-300
-                    ${
-                      step < currentStep
-                        ? "bg-[var(--color-accent)]"
-                        : step === currentStep
-                          ? "bg-[var(--color-accent)] pulse-glow"
-                          : "bg-[var(--color-bg-elevated)]"
-                    }
-                  `}
+                    className="h-full rounded-full progress-bar-fill transition-all duration-500 ease-out"
+                    style={{ width: `${progress}%` }}
                   />
-                )
-              )}
-            </div>
-          </div>
+                </div>
 
-          {/* Step Content */}
-          <div
-            key={currentStep}
-            className={direction === "forward" ? "slide-up" : "fade-in"}
-          >
-            <div className="glass-card p-6 sm:p-8">
-              {currentStep === 1 ? (
-                <StyleSelector
-                  selected={formData.style}
-                  onSelect={(style) => updateFormData({ style })}
-                />
-              ) : (
-                <FormStep
-                  step={currentStep}
-                  formData={formData}
-                  onChange={updateFormData}
-                />
-              )}
-            </div>
-          </div>
+                {/* Step dots */}
+                <div className="flex justify-between px-1">
+                  {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(
+                    (step) => (
+                      <div
+                        key={step}
+                        className={`
+                        w-2 h-2 rounded-full transition-all duration-300
+                        ${
+                          step < currentStep
+                            ? "bg-[var(--color-accent)]"
+                            : step === currentStep
+                              ? "bg-[var(--color-accent)] pulse-glow"
+                              : "bg-[var(--color-bg-elevated)]"
+                        }
+                      `}
+                      />
+                    )
+                  )}
+                </div>
+              </div>
 
-          {/* Navigation */}
-          <div className="flex items-center justify-between mt-6">
-            <button
-              id="btn-back"
-              onClick={handleBack}
-              disabled={currentStep === 1}
-              className={`btn-secondary ${
-                currentStep === 1
-                  ? "opacity-0 pointer-events-none"
-                  : ""
-              }`}
-            >
-              <span className="flex items-center gap-2">
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
+              {/* Step Content */}
+              <div
+                key={currentStep}
+                className={direction === "forward" ? "slide-up" : "fade-in"}
+              >
+                <div className="glass-card p-6 sm:p-8">
+                  {currentStep === 1 ? (
+                    <StyleSelector
+                      selected={formData.style}
+                      onSelect={(style) => updateFormData({ style })}
+                    />
+                  ) : (
+                    <FormStep
+                      step={currentStep}
+                      formData={formData}
+                      onChange={updateFormData}
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between mt-6">
+                <button
+                  id="btn-back"
+                  onClick={handleBack}
+                  disabled={currentStep === 1}
+                  className={`btn-secondary ${
+                    currentStep === 1
+                      ? "opacity-0 pointer-events-none"
+                      : ""
+                  }`}
                 >
-                  <path
-                    d="M10 3L5 8L10 13"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-                Back
-              </span>
-            </button>
+                  <span className="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path
+                        d="M10 3L5 8L10 13"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Back
+                  </span>
+                </button>
 
-            <button
-              id="btn-next"
-              onClick={handleNext}
-              disabled={!isStepValid()}
-              className="btn-primary"
-            >
-              <span className="flex items-center gap-2">
-                {currentStep === TOTAL_STEPS ? (
-                  <>
-                    Generate Concept
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path
-                        d="M2 8H14M8 2L14 8L8 14"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </>
-                ) : (
-                  <>
-                    Next
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 16 16"
-                      fill="none"
-                    >
-                      <path
-                        d="M6 3L11 8L6 13"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </>
-                )}
-              </span>
-            </button>
+                <button
+                  id="btn-next"
+                  onClick={handleNext}
+                  disabled={!isStepValid()}
+                  className="btn-primary"
+                >
+                  <span className="flex items-center gap-2">
+                    {currentStep === TOTAL_STEPS ? (
+                      <>
+                        Generate Concept
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path
+                            d="M2 8H14M8 2L14 8L8 14"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </>
+                    ) : (
+                      <>
+                        Next
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path
+                            d="M6 3L11 8L6 13"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </>
+                    )}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* ── Right: Price Estimator ── */}
+            <div className="lg:sticky lg:top-24">
+              <PriceEstimator formData={formData} />
+            </div>
+
           </div>
         </div>
       </main>
