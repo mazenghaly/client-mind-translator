@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   FormData,
   ConceptResult,
@@ -15,12 +15,26 @@ import PriceEstimator from "./PriceEstimator";
 
 const TOTAL_STEPS = 6;
 
-export default function StepWizard() {
+interface StepWizardProps {
+  initialData?: Partial<FormData>;
+  analyzerSlot?: React.ReactNode;
+}
+
+export default function StepWizard({ initialData, analyzerSlot }: StepWizardProps) {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState<FormData>(INITIAL_FORM_DATA);
+  const [formData, setFormData] = useState<FormData>({ ...INITIAL_FORM_DATA, ...initialData });
   const [result, setResult] = useState<ConceptResult | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [direction, setDirection] = useState<"forward" | "back">("forward");
+
+  // When parent provides new pre-filled data, merge it in and reset to step 1
+  useEffect(() => {
+    if (initialData) {
+      setFormData({ ...INITIAL_FORM_DATA, ...initialData });
+      setCurrentStep(1);
+      setResult(null);
+    }
+  }, [initialData]);
 
   const updateFormData = useCallback((updates: Partial<FormData>) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -87,6 +101,7 @@ export default function StepWizard() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
+        {analyzerSlot}
         <main className="flex-1 px-4 py-8">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
@@ -106,6 +121,7 @@ export default function StepWizard() {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
+        {analyzerSlot}
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-6 fade-in">
             <div className="relative w-20 h-20 mx-auto">
@@ -130,8 +146,9 @@ export default function StepWizard() {
   const progress = (currentStep / TOTAL_STEPS) * 100;
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div id="wizard-section" className="min-h-screen flex flex-col">
       <Header />
+      {analyzerSlot}
 
       <main className="flex-1 px-4 py-6">
         <div className="max-w-5xl mx-auto">
