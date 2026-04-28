@@ -1,33 +1,24 @@
 @import "tailwindcss";
 
 @theme {
-  /* RG Designs Primary Palette */
-  --color-bg-primary: #131313; /* Midnight Black */
-  --color-bg-secondary: #0a0a0a; /* Slightly darker for depth */
-  --color-bg-card: #1c1c1c;
-  --color-bg-card-hover: #222222;
-  --color-bg-elevated: #282828;
-  
-  --color-border-default: #52555a; /* Graphite Gray */
-  --color-border-active: #3a328a; /* Royal Violet */
-  
-  --color-text-primary: #d5d9d4; /* Off White */
-  --color-text-secondary: #a0a4a8; /* Muted Off White */
-  --color-text-muted: #52555a; /* Graphite Gray as muted text */
-  
-  /* Brand Accent */
-  --color-accent: #3a328a; /* Royal Violet */
-  --color-accent-hover: #4e44b8;
-  --color-accent-glow: rgba(58, 50, 138, 0.4);
-  
-  /* Status Colors */
-  --color-success: #d5d9d4; /* Keep subtle to maintain architectural purity */
-  --color-success-glow: rgba(213, 217, 212, 0.1);
-  --color-warning: #52555a;
-  
-  /* Gradients aren't heavily used in their branding; map gradient variables to Violet to avoid breaking existing classes */
-  --color-gradient-start: #3a328a;
-  --color-gradient-end: #3a328a;
+  --color-bg-primary: #0a0a0f;
+  --color-bg-secondary: #12121a;
+  --color-bg-card: #1a1a26;
+  --color-bg-card-hover: #22222e;
+  --color-bg-elevated: #252533;
+  --color-border-default: #2a2a3a;
+  --color-border-active: #6366f1;
+  --color-text-primary: #f0f0f5;
+  --color-text-secondary: #9898b0;
+  --color-text-muted: #6a6a82;
+  --color-accent: #6366f1;
+  --color-accent-hover: #818cf8;
+  --color-accent-glow: rgba(99, 102, 241, 0.25);
+  --color-success: #10b981;
+  --color-success-glow: rgba(16, 185, 129, 0.2);
+  --color-warning: #f59e0b;
+  --color-gradient-start: #6366f1;
+  --color-gradient-end: #a855f7;
 }
 
 @layer base {
@@ -38,38 +29,36 @@
   body {
     background-color: var(--color-bg-primary);
     color: var(--color-text-primary);
-    font-family: "Helvetica Neue", Helvetica, Arial, var(--font-inter), sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  /* Structural headings */
-  h1, h2, h3, h4, h5, h6, .font-heading {
-    font-family: var(--font-bebas-neue), "Oswald", impact, sans-serif;
-    letter-spacing: 0.05em; /* Approximates tracking */
-  }
-
-  .tracking-architectural {
-    letter-spacing: 0.1em; /* Represents the Tracking 30 rule */
+    font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   }
 
   ::selection {
-    background-color: var(--color-accent);
-    color: white;
+    background-color: var(--color-accent-glow);
+    color: var(--color-text-primary);
   }
 }
 
 @layer utilities {
   .glass-card {
-    background: transparent;
+    background: linear-gradient(
+      135deg,
+      rgba(26, 26, 38, 0.8),
+      rgba(18, 18, 26, 0.6)
+    );
+    backdrop-filter: blur(20px);
     border: 1px solid var(--color-border-default);
-    border-radius: 0.5rem; /* Less rounded for an architectural feel */
+    border-radius: 1rem;
   }
 
   .glass-card-active {
-    background: var(--color-bg-card);
-    border-color: var(--color-accent);
-    box-shadow: 0 0 0 1px var(--color-accent); /* Sharp, minimal glow */
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.12),
+      rgba(168, 85, 247, 0.08)
+    );
+    border-color: var(--color-border-active);
+    box-shadow: 0 0 24px var(--color-accent-glow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
   .gradient-text {
@@ -84,25 +73,24 @@
   }
 
   .btn-primary {
-    background: var(--color-accent);
+    background: linear-gradient(
+      135deg,
+      var(--color-gradient-start),
+      var(--color-gradient-end)
+    );
     color: white;
-    font-weight: 500;
-    padding: 1rem 2.5rem;
-    border-radius: 0; /* Sharp, structural edges */
-    text-transform: uppercase;
-    font-family: var(--font-bebas-neue), sans-serif;
-    letter-spacing: 0.1em;
-    font-size: 1.125rem;
+    font-weight: 600;
+    padding: 0.75rem 2rem;
+    border-radius: 0.75rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: none;
+    box-shadow: 0 4px 16px var(--color-accent-glow);
     cursor: pointer;
-    border: 1px solid var(--color-accent);
+    border: none;
   }
 
   .btn-primary:hover {
-    background: var(--color-accent-hover);
-    border-color: var(--color-accent-hover);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px var(--color-accent-glow);
   }
 
   .btn-primary:active {
@@ -117,15 +105,11 @@
   }
 
   .btn-secondary {
-    background: transparent;
-    color: var(--color-text-primary);
+    background: var(--color-bg-card);
+    color: var(--color-text-secondary);
     font-weight: 500;
-    padding: 1rem 2.5rem;
-    border-radius: 0;
-    text-transform: uppercase;
-    font-family: var(--font-bebas-neue), sans-serif;
-    letter-spacing: 0.1em;
-    font-size: 1.125rem;
+    padding: 0.75rem 2rem;
+    border-radius: 0.75rem;
     border: 1px solid var(--color-border-default);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;

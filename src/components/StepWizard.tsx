@@ -150,30 +150,49 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
       <Header />
       {analyzerSlot}
 
-      <main className="flex-1 px-4 py-12">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-16 items-start">
+      <main className="flex-1 px-4 py-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
 
             {/* ── Left: Wizard ── */}
             <div className="w-full">
               {/* Progress */}
-              <div className="mb-12 space-y-4">
-                <div className="flex items-center justify-between text-xs uppercase tracking-architectural">
-                  <span className="text-[var(--color-text-muted)] font-semibold">
-                    0{currentStep} / 0{TOTAL_STEPS}
+              <div className="mb-8 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-[var(--color-text-muted)] font-medium">
+                    Step {currentStep} of {TOTAL_STEPS}
                   </span>
-                  <span className="text-[var(--color-text-secondary)] font-heading">
+                  <span className="text-[var(--color-text-muted)]">
                     {STEP_TITLES[currentStep - 1]}
                   </span>
                 </div>
-                <div className="h-0.5 w-full bg-[var(--color-border-default)] overflow-hidden">
+                <div className="h-1.5 rounded-full bg-[var(--color-bg-card)] overflow-hidden">
                   <div
-                    className="h-full bg-[var(--color-text-primary)] transition-all duration-700 ease-out"
+                    className="h-full rounded-full progress-bar-fill transition-all duration-500 ease-out"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
 
-                {/* Remove the redundant 'step dots' to keep it minimal and architectural */}
+                {/* Step dots */}
+                <div className="flex justify-between px-1">
+                  {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(
+                    (step) => (
+                      <div
+                        key={step}
+                        className={`
+                        w-2 h-2 rounded-full transition-all duration-300
+                        ${
+                          step < currentStep
+                            ? "bg-[var(--color-accent)]"
+                            : step === currentStep
+                              ? "bg-[var(--color-accent)] pulse-glow"
+                              : "bg-[var(--color-bg-elevated)]"
+                        }
+                      `}
+                      />
+                    )
+                  )}
+                </div>
               </div>
 
               {/* Step Content */}
@@ -181,7 +200,7 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
                 key={currentStep}
                 className={direction === "forward" ? "slide-up" : "fade-in"}
               >
-                <div className="p-2">
+                <div className="glass-card p-6 sm:p-8">
                   {currentStep === 1 ? (
                     <StyleSelector
                       selected={formData.style}
@@ -198,7 +217,7 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
               </div>
 
               {/* Navigation */}
-              <div className="flex items-center justify-between mt-12 pt-8 border-t border-[var(--color-border-default)]">
+              <div className="flex items-center justify-between mt-6">
                 <button
                   id="btn-back"
                   onClick={handleBack}

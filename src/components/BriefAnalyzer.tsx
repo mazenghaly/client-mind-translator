@@ -1,106 +1,34 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import { analyzeClientBrief, BriefAnalysis } from "@/lib/briefAnalyzer";
-import {
-  extractTextFromFile,
-  detectFileType,
-  FILE_TYPE_LABELS,
-  ACCEPTED_EXTENSIONS,
-  ACCEPTED_MIME_TYPES,
-} from "@/lib/fileExtractor";
 import { FormData } from "@/lib/types";
 
 interface BriefAnalyzerProps {
   onApply: (data: Partial<FormData>) => void;
 }
 
+const EXAMPLE_BRIEF = `We are a premium technology company launching a new AI product at the Dubai AI Summit. We need a 6x4 meter booth, open on two sides. The design should be futuristic and high-tech with LED screens and an interactive display. We need a reception area and a private meeting room for VIP clients. Budget is high-end — no compromises. Avoid anything that looks too dark or crowded.`;
+
 export default function BriefAnalyzer({ onApply }: BriefAnalyzerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [extractedText, setExtractedText] = useState<string>("");
+  const [brief, setBrief] = useState("");
   const [analysis, setAnalysis] = useState<BriefAnalysis | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingStage, setProcessingStage] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [applied, setApplied] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const processFile = useCallback(async (uploadedFile: File) => {
-    setFile(uploadedFile);
-    setError(null);
+  const handleAnalyze = async () => {
+    if (!brief.trim()) return;
+    setIsAnalyzing(true);
     setAnalysis(null);
     setApplied(false);
-    setIsProcessing(true);
-
-    try {
-      // Stage 1: Extract text
-      setProcessingStage("Extracting text from file...");
-      const text = await extractTextFromFile(uploadedFile);
-
-      if (!text.trim()) {
-        throw new Error(
-          "No text could be extracted from this file. The file might be empty, image-based, or password-protected."
-        );
-      }
-
-      setExtractedText(text);
-
-      // Stage 2: Analyze content
-      setProcessingStage("Analyzing client brief...");
-      await new Promise((r) => setTimeout(r, 600));
-      const result = analyzeClientBrief(text);
-
-      setAnalysis(result);
-      setProcessingStage("");
-      setTimeout(
-        () =>
-          resultsRef.current?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          }),
-        100
-      );
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "An error occurred while processing the file."
-      );
-    } finally {
-      setIsProcessing(false);
-      setProcessingStage("");
-    }
-  }, []);
-
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (selected) processFile(selected);
-  };
-
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      setIsDragging(false);
-      const dropped = e.dataTransfer.files?.[0];
-      if (dropped) processFile(dropped);
-    },
-    [processFile]
-  );
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(false);
+    // Tiny delay for perceived processing
+    await new Promise((r) => setTimeout(r, 800));
+    const result = analyzeClientBrief(brief);
+    setAnalysis(result);
+    setIsAnalyzing(false);
+    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
   };
 
   const handleApply = () => {
@@ -108,40 +36,35 @@ export default function BriefAnalyzer({ onApply }: BriefAnalyzerProps) {
     onApply(analysis.suggestedFormData);
     setApplied(true);
     setTimeout(() => {
-      document
-        .getElementById("wizard-section")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document.getElementById("wizard-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 200);
   };
 
-  const handleRemoveFile = () => {
-    setFile(null);
-    setExtractedText("");
+  const handleExample = () => {
+    setBrief(EXAMPLE_BRIEF);
     setAnalysis(null);
-    setError(null);
     setApplied(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
     <section className="border-b border-[var(--color-border-default)] bg-[var(--color-bg-secondary)]">
       <div className="max-w-5xl mx-auto px-4 py-4">
-        {/* Toggle bar */}
+        {/* Collapsed toggle bar */}
         <button
           id="brief-analyzer-toggle"
           onClick={() => setIsOpen((o) => !o)}
-          className="w-full flex items-center justify-between group cursor-pointer"
+          className="w-full flex items-center justify-between group"
         >
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[var(--color-warning)] to-[#f97316] flex items-center justify-center flex-shrink-0 shadow shadow-[rgba(245,158,11,0.3)]">
-              <span className="text-sm">📄</span>
+              <span className="text-sm">🧠</span>
             </div>
             <div className="text-left">
               <span className="text-sm font-semibold text-[var(--color-text-primary)]">
                 Client Brief Analyzer
               </span>
               <span className="ml-2 text-xs text-[var(--color-text-muted)]">
-                Upload a brief file → auto-fill the wizard
+                Paste a brief → auto-fill the wizard
               </span>
             </div>
           </div>
@@ -156,9 +79,7 @@ export default function BriefAnalyzer({ onApply }: BriefAnalyzerProps) {
               height="18"
               viewBox="0 0 18 18"
               fill="none"
-              className={`text-[var(--color-text-muted)] transition-transform duration-300 ${
-                isOpen ? "rotate-180" : ""
-              }`}
+              className={`text-[var(--color-text-muted)] transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
             >
               <path
                 d="M4 6.5L9 11.5L14 6.5"
@@ -174,149 +95,60 @@ export default function BriefAnalyzer({ onApply }: BriefAnalyzerProps) {
         {/* Expanded content */}
         {isOpen && (
           <div className="mt-4 space-y-5 fade-in">
-            {/* File upload area */}
-            {!file && !isProcessing && (
-              <div
-                onDrop={handleDrop}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onClick={() => fileInputRef.current?.click()}
-                className={`
-                  relative rounded-sm border-2 border-dashed transition-all duration-300 cursor-pointer
-                  flex flex-col items-center justify-center py-12 px-6 text-center
-                  ${
-                    isDragging
-                      ? "border-[var(--color-border-active)] bg-[rgba(99,102,241,0.08)] scale-[1.01]"
-                      : "border-[var(--color-border-default)] bg-[var(--color-bg-card)] hover:border-[var(--color-text-muted)] hover:bg-[var(--color-bg-card-hover)]"
-                  }
-                `}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept={`${ACCEPTED_EXTENSIONS},${ACCEPTED_MIME_TYPES}`}
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  id="brief-file-input"
-                />
-
-                <div
-                  className={`w-16 h-16 rounded-sm flex items-center justify-center mb-4 transition-all duration-300 ${
-                    isDragging
-                      ? "bg-[var(--color-accent-glow)] scale-110"
-                      : "bg-[var(--color-bg-elevated)]"
-                  }`}
+            {/* Textarea */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label
+                  htmlFor="client-brief"
+                  className="text-sm font-medium text-[var(--color-text-secondary)]"
                 >
-                  <svg
-                    width="32"
-                    height="32"
-                    viewBox="0 0 32 32"
-                    fill="none"
-                    className={`transition-colors duration-300 ${
-                      isDragging
-                        ? "text-[var(--color-accent)]"
-                        : "text-[var(--color-text-muted)]"
-                    }`}
-                  >
-                    <path
-                      d="M16 4L16 20M16 4L10 10M16 4L22 10"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M4 22V26C4 27.1 4.9 28 6 28H26C27.1 28 28 27.1 28 26V22"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-
-                <p className="text-sm uppercase tracking-architectural font-medium text-[var(--color-text-primary)] mb-1">
-                  {isDragging
-                    ? "Drop your file here"
-                    : "Drop your client brief here, or click to browse"}
-                </p>
-                <p className="text-xs text-[var(--color-text-muted)]">
-                  Supports PDF, Word (.doc/.docx), Excel (.xlsx/.xls/.csv), and
-                  Text files
-                </p>
-              </div>
-            )}
-
-            {/* Processing state */}
-            {isProcessing && (
-              <div className="rounded-sm border border-[var(--color-border-default)] bg-[var(--color-bg-card)] py-12 px-6 flex flex-col items-center justify-center text-center fade-in">
-                <div className="relative w-14 h-14 mb-4">
-                  <div className="absolute inset-0 rounded-full border-2 border-[var(--color-border-default)]" />
-                  <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[var(--color-accent)] animate-spin" />
-                  <div
-                    className="absolute inset-3 rounded-full border-2 border-transparent border-t-[var(--color-gradient-end)] animate-spin"
-                    style={{
-                      animationDirection: "reverse",
-                      animationDuration: "1.5s",
-                    }}
-                  />
-                </div>
-                <p className="text-sm font-medium text-[var(--color-text-primary)]">
-                  {processingStage || "Processing..."}
-                </p>
-                {file && (
-                  <p className="text-xs text-[var(--color-text-muted)] mt-1">
-                    {file.name}
-                  </p>
-                )}
-              </div>
-            )}
-
-            {/* Error state */}
-            {error && (
-              <div className="rounded-sm border border-red-500/30 bg-red-500/8 p-4 flex items-start gap-3 fade-in">
-                <span className="text-lg flex-shrink-0 mt-0.5">⚠️</span>
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-red-400">{error}</p>
-                  <button
-                    onClick={handleRemoveFile}
-                    className="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] mt-2 underline cursor-pointer"
-                  >
-                    Try another file
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* File info bar (shown when file is loaded) */}
-            {file && !isProcessing && !error && (
-              <div className="flex items-center gap-3 p-3 rounded-sm bg-[var(--color-bg-card)] border border-[var(--color-border-default)] fade-in">
-                <FileIcon type={detectFileType(file)} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[var(--color-text-primary)] truncate">
-                    {file.name}
-                  </p>
-                  <p className="text-xs text-[var(--color-text-muted)]">
-                    {FILE_TYPE_LABELS[detectFileType(file)]} ·{" "}
-                    {formatFileSize(file.size)} ·{" "}
-                    {extractedText.split(/\s+/).length} words extracted
-                  </p>
-                </div>
+                  Paste Client Brief
+                </label>
                 <button
-                  onClick={handleRemoveFile}
-                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--color-bg-elevated)] border border-[var(--color-border-default)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-text-muted)] transition-all cursor-pointer"
+                  onClick={handleExample}
+                  className="text-xs text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors"
                 >
-                  Remove
+                  Load example brief →
                 </button>
               </div>
-            )}
+              <textarea
+                id="client-brief"
+                value={brief}
+                onChange={(e) => {
+                  setBrief(e.target.value);
+                  setAnalysis(null);
+                  setApplied(false);
+                }}
+                placeholder="Paste the client's brief here — any format works. The analyzer will extract booth size, style, required elements, budget, and more..."
+                rows={5}
+                className="w-full px-4 py-3 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-default)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] text-sm leading-relaxed focus:border-[var(--color-border-active)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-glow)] transition-all duration-200 resize-none"
+              />
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-[var(--color-text-muted)]">
+                  {brief.length} characters
+                </span>
+                <button
+                  id="analyze-brief-btn"
+                  onClick={handleAnalyze}
+                  disabled={!brief.trim() || isAnalyzing}
+                  className="btn-primary text-sm px-5 py-2.5 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    <>
+                      <span>🔍</span>
+                      Analyze Brief
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
 
-            {/* Extracted preview (collapsible) */}
-            {extractedText && !isProcessing && (
-              <ExtractedPreview text={extractedText} />
-            )}
-
-            {/* Analysis results */}
+            {/* Results */}
             {analysis && (
               <div ref={resultsRef} className="space-y-4 pb-2 slide-up">
                 {/* Confidence banner */}
@@ -324,7 +156,11 @@ export default function BriefAnalyzer({ onApply }: BriefAnalyzerProps) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Extracted Data */}
-                  <ResultCard icon="📋" title="Extracted Data" accent="indigo">
+                  <ResultCard
+                    icon="📋"
+                    title="Extracted Data"
+                    accent="indigo"
+                  >
                     <ExtractedDataList extracted={analysis.extracted} />
                   </ResultCard>
 
@@ -344,9 +180,7 @@ export default function BriefAnalyzer({ onApply }: BriefAnalyzerProps) {
                               key={item}
                               className="text-xs text-[var(--color-text-muted)] flex items-start gap-2"
                             >
-                              <span className="text-[var(--color-warning)] mt-0.5 flex-shrink-0">
-                                ⚠
-                              </span>
+                              <span className="text-[var(--color-warning)] mt-0.5 flex-shrink-0">⚠</span>
                               {item}
                             </li>
                           ))}
@@ -369,21 +203,20 @@ export default function BriefAnalyzer({ onApply }: BriefAnalyzerProps) {
                 </div>
 
                 {/* Use This Data CTA */}
-                <div className="flex items-center justify-between p-6 rounded-sm bg-[var(--color-bg-card)] border border-[var(--color-border-default)]">
+                <div className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-[rgba(99,102,241,0.1)] to-[rgba(168,85,247,0.07)] border border-[var(--color-border-active)]/40">
                   <div>
-                    <p className="text-sm font-semibold text-white uppercase tracking-architectural">
+                    <p className="text-sm font-semibold text-[var(--color-text-primary)]">
                       Ready to use this data?
                     </p>
-                    <p className="text-xs text-[var(--color-text-secondary)] mt-1">
-                      Pre-fills the wizard with everything extracted from the
-                      brief.
+                    <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
+                      Pre-fills the wizard with everything we extracted from the brief.
                     </p>
                   </div>
                   <button
                     id="use-brief-data-btn"
                     onClick={handleApply}
                     disabled={applied}
-                    className={`flex-shrink-0 flex items-center gap-2 px-6 py-3 rounded-sm font-semibold text-sm transition-all duration-300 cursor-pointer border ${
+                    className={`flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-300 cursor-pointer border ${
                       applied
                         ? "bg-[var(--color-success-glow)] border-[var(--color-success)]/30 text-[var(--color-success)]"
                         : "btn-primary"
@@ -394,12 +227,7 @@ export default function BriefAnalyzer({ onApply }: BriefAnalyzerProps) {
                     ) : (
                       <>
                         Use This Data
-                        <svg
-                          width="14"
-                          height="14"
-                          viewBox="0 0 14 14"
-                          fill="none"
-                        >
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                           <path
                             d="M2 7H12M7 2L12 7L7 12"
                             stroke="currentColor"
@@ -421,60 +249,7 @@ export default function BriefAnalyzer({ onApply }: BriefAnalyzerProps) {
   );
 }
 
-/* ─── Extracted text preview ─────────────────────────────────────────────────── */
-function ExtractedPreview({ text }: { text: string }) {
-  const [expanded, setExpanded] = useState(false);
-  const preview = text.slice(0, 400);
-  const isLong = text.length > 400;
-
-  return (
-    <div className="glass-card p-4">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-sm">📝</span>
-          <span className="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wider">
-            Extracted Text Preview
-          </span>
-        </div>
-        {isLong && (
-          <button
-            onClick={() => setExpanded((e) => !e)}
-            className="text-xs text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] cursor-pointer"
-          >
-            {expanded ? "Show less" : "Show all"}
-          </button>
-        )}
-      </div>
-      <p className="text-xs text-[var(--color-text-muted)] leading-relaxed whitespace-pre-wrap font-mono">
-        {expanded ? text : preview}
-        {isLong && !expanded && "..."}
-      </p>
-    </div>
-  );
-}
-
-/* ─── File icon ──────────────────────────────────────────────────────────────── */
-function FileIcon({ type }: { type: string }) {
-  const config: Record<string, { bg: string; label: string }> = {
-    pdf: { bg: "from-red-500 to-red-600", label: "PDF" },
-    docx: { bg: "from-blue-500 to-blue-600", label: "DOC" },
-    xlsx: { bg: "from-emerald-500 to-emerald-600", label: "XLS" },
-    txt: { bg: "from-gray-400 to-gray-500", label: "TXT" },
-    unknown: { bg: "from-gray-400 to-gray-500", label: "FILE" },
-  };
-  const c = config[type] || config.unknown;
-  return (
-    <div
-      className={`w-10 h-10 rounded-lg bg-gradient-to-br ${c.bg} flex items-center justify-center flex-shrink-0`}
-    >
-      <span className="text-[10px] font-bold text-white uppercase">
-        {c.label}
-      </span>
-    </div>
-  );
-}
-
-/* ─── Sub-components (same as before) ────────────────────────────────────────── */
+/* ─── Sub-components ──────────────────────────────────────────────────────────── */
 
 function ConfidenceBanner({ confidence }: { confidence: number }) {
   const level =
@@ -482,7 +257,7 @@ function ConfidenceBanner({ confidence }: { confidence: number }) {
   const config = {
     low: {
       label: "Low confidence",
-      hint: "Only a few signals were found. The brief may need more detail.",
+      hint: "Only a few signals were found. Provide more details for a better analysis.",
       barColor: "bg-[var(--color-warning)]",
       textColor: "text-[var(--color-warning)]",
     },
@@ -505,18 +280,12 @@ function ConfidenceBanner({ confidence }: { confidence: number }) {
     <div className="glass-card p-4">
       <div className="flex items-start justify-between gap-4 mb-2">
         <div>
-          <span
-            className={`text-xs font-bold uppercase tracking-wider ${cfg.textColor}`}
-          >
+          <span className={`text-xs font-bold uppercase tracking-wider ${cfg.textColor}`}>
             {cfg.label}
           </span>
-          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">
-            {cfg.hint}
-          </p>
+          <p className="text-xs text-[var(--color-text-muted)] mt-0.5">{cfg.hint}</p>
         </div>
-        <span className={`text-lg font-bold ${cfg.textColor}`}>
-          {confidence}%
-        </span>
+        <span className={`text-lg font-bold ${cfg.textColor}`}>{confidence}%</span>
       </div>
       <div className="h-1.5 rounded-full bg-[var(--color-bg-elevated)] overflow-hidden">
         <div
@@ -550,7 +319,7 @@ function ResultCard({
     <div className={`glass-card p-5 ${className}`}>
       <div className="flex items-center gap-2 mb-3">
         <span className="text-base">{icon}</span>
-        <h3 className={`text-base font-semibold uppercase tracking-architectural ${accentColors[accent]}`}>
+        <h3 className={`text-sm font-semibold ${accentColors[accent]}`}>
           {title}
         </h3>
       </div>
@@ -585,7 +354,11 @@ function ExtractedDataList({
         : null,
       icon: "📐",
     },
-    { label: "Industry", value: extracted.industry, icon: "🏢" },
+    {
+      label: "Industry",
+      value: extracted.industry,
+      icon: "🏢",
+    },
     {
       label: "Style",
       value: extracted.style ? STYLE_LABEL[extracted.style] : null,
@@ -648,11 +421,4 @@ function ExtractedDataList({
       ))}
     </div>
   );
-}
-
-/* ─── Helpers ────────────────────────────────────────────────────────────────── */
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
