@@ -29,188 +29,173 @@ export default function OutputScreen({ result, onReset }: OutputScreenProps) {
     }
   };
 
-  const sections = [
-    {
-      key: "conceptName",
-      title: "Concept Name",
-      content: result.conceptName,
-      icon: "✦",
-    },
-    {
-      key: "conceptStory",
-      title: "Concept Story",
-      content: result.conceptStory,
-      icon: "📖",
-    },
-    {
-      key: "designDirection",
-      title: "Design Direction",
-      content: result.designDirection,
-      icon: "🧭",
-    },
-    {
-      key: "aiPrompt",
-      title: "AI Prompt",
-      content: result.aiPrompt,
-      icon: "🤖",
-    },
-  ];
+  const formatDirectionAsBullets = (text: string) => {
+    // Basic heuristic to turn paragraphs into bullet points
+    const sentences = text
+      .split(/(?<=[.!?])\s+/)
+      .filter((s) => s.trim().length > 0);
+    return (
+      <ul className="space-y-4">
+        {sentences.map((sentence, idx) => (
+          <li key={idx} className="flex items-start gap-4">
+            <span className="w-1.5 h-1.5 mt-2 rounded bg-[var(--color-accent)] flex-shrink-0" />
+            <span className="text-base text-[var(--color-text-secondary)] leading-relaxed">
+              {sentence}
+            </span>
+          </li>
+        ))}
+      </ul>
+    );
+  };
 
   return (
-    <div className="slide-up space-y-8">
-      {/* Header */}
-      <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-success-glow)] border border-[var(--color-success)]/30 mb-2">
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            className="text-[var(--color-success)]"
-          >
-            <path
-              d="M3 8L6.5 11.5L13 5"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span className="text-sm font-medium text-[var(--color-success)]">
-            Concept Generated
+    <div className="slide-up">
+      {/* Top action bar */}
+      <div className="flex items-center justify-between mb-16 border-b border-[var(--color-border-default)] pb-6">
+        <div className="inline-flex items-center gap-3">
+          <div className="w-8 h-8 rounded-sm bg-[var(--color-accent)] flex items-center justify-center">
+             <span className="text-white font-heading tracking-architectural text-sm">RG</span>
+          </div>
+          <span className="text-sm font-medium tracking-architectural uppercase text-[var(--color-text-secondary)]">
+            Approved Concept
           </span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-bold gradient-text">
-          {result.conceptName}
-        </h1>
-        <p className="text-[var(--color-text-secondary)] max-w-lg mx-auto">
-          Your personalized booth concept is ready. Copy any section or the full
-          AI prompt below.
-        </p>
-      </div>
-
-      {/* Result Cards */}
-      <div className="space-y-4">
-        {sections.map((section, index) => (
-          <div
-            key={section.key}
-            className="glass-card p-6 fade-in"
-            style={{ animationDelay: `${index * 100}ms` }}
-          >
-            <div className="flex items-start justify-between gap-4 mb-3">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">{section.icon}</span>
-                <h3 className="text-lg font-semibold text-[var(--color-text-primary)]">
-                  {section.title}
-                </h3>
-              </div>
-              <button
-                id={`copy-${section.key}`}
-                onClick={() =>
-                  copyToClipboard(section.content, section.key)
-                }
-                className={`
-                  flex-shrink-0 flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 cursor-pointer border
-                  ${
-                    copiedField === section.key
-                      ? "bg-[var(--color-success-glow)] border-[var(--color-success)]/30 text-[var(--color-success)]"
-                      : "bg-[var(--color-bg-elevated)] border-[var(--color-border-default)] text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] hover:border-[var(--color-text-muted)]"
-                  }
-                `}
-              >
-                {copiedField === section.key ? (
-                  <>
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                    >
-                      <path
-                        d="M2.5 7L5.5 10L11.5 4"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 14 14"
-                      fill="none"
-                    >
-                      <rect
-                        x="4"
-                        y="4"
-                        width="8"
-                        height="8"
-                        rx="1.5"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      />
-                      <path
-                        d="M10 4V2.5A1.5 1.5 0 008.5 1H2.5A1.5 1.5 0 001 2.5v6A1.5 1.5 0 002.5 10H4"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                      />
-                    </svg>
-                    Copy
-                  </>
-                )}
-              </button>
-            </div>
-            <div
-              className={`text-[var(--color-text-secondary)] leading-relaxed whitespace-pre-line ${
-                section.key === "conceptName"
-                  ? "text-xl font-semibold text-[var(--color-text-primary)]"
-                  : "text-sm"
-              }`}
-            >
-              {section.content}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Copy All / Start Over */}
-      <div className="flex flex-col sm:flex-row gap-3 justify-center pt-4">
-        <button
-          id="copy-all"
-          onClick={() => {
-            const allText = sections
-              .map((s) => `## ${s.title}\n${s.content}`)
-              .join("\n\n---\n\n");
-            copyToClipboard(allText, "all");
-          }}
-          className="btn-primary flex items-center justify-center gap-2"
-        >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <rect
-              x="5"
-              y="5"
-              width="9"
-              height="9"
-              rx="2"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            />
-            <path
-              d="M11 5V3a2 2 0 00-2-2H3a2 2 0 00-2 2v6a2 2 0 002 2h2"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            />
-          </svg>
-          {copiedField === "all" ? "Copied Everything!" : "Copy All Sections"}
-        </button>
-        <button id="start-over" onClick={onReset} className="btn-secondary">
+        <button id="start-over" onClick={onReset} className="uppercase tracking-architectural text-xs font-semibold text-[var(--color-text-muted)] hover:text-white transition-colors cursor-pointer">
           Start Over
         </button>
       </div>
+
+      <div className="max-w-4xl mx-auto space-y-24">
+        {/* Concept Title & Hero Block */}
+        <div className="space-y-12">
+          <div className="space-y-6">
+             <p className="text-xs uppercase tracking-architectural text-[var(--color-accent)] font-semibold">
+                Project Code: {Math.random().toString(36).substring(2, 6).toUpperCase()}-{Math.floor(Math.random() * 1000)}
+             </p>
+             <h1 className="text-6xl sm:text-7xl lg:text-8xl font-heading text-white leading-[0.85] tracking-tight">
+               {result.conceptName.toUpperCase()}
+             </h1>
+          </div>
+
+          {/* Large Architectural Wireframe Hero Placeholder */}
+          <div className="w-full aspect-video bg-[var(--color-bg-card)] border border-[var(--color-border-default)] relative overflow-hidden flex items-center justify-center group">
+            {/* Grid Pattern */}
+            <div className="absolute inset-0 opacity-10"
+                 style={{ backgroundImage: "linear-gradient(#52555a 1px, transparent 1px), linear-gradient(90deg, #52555a 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
+            <div className="relative text-center space-y-4">
+              <span className="text-[var(--color-text-muted)] font-heading text-4xl block opacity-50">CONCEPT RENDER PENDING</span>
+              <p className="text-[var(--color-text-muted)] text-sm tracking-architectural uppercase">Use AI Prompt to generate 3D visualization</p>
+            </div>
+            {/* Architectural accent lines */}
+            <div className="absolute top-0 left-10 w-px h-full bg-[var(--color-border-default)] opacity-30" />
+            <div className="absolute top-10 left-0 w-full h-px bg-[var(--color-border-default)] opacity-30" />
+          </div>
+        </div>
+
+        {/* Narrative & Direction Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+           {/* Left Col: Story */}
+           <div className="space-y-6">
+              <h3 className="text-xl font-heading tracking-architectural uppercase text-white pb-4 border-b border-[var(--color-border-default)]">
+                 The Story
+              </h3>
+              <p className="text-lg text-[var(--color-text-primary)] leading-relaxed font-light">
+                 {result.conceptStory}
+              </p>
+              <CopyButton 
+                 field="conceptStory" 
+                 content={result.conceptStory} 
+                 copied={copiedField === "conceptStory"}
+                 onCopy={copyToClipboard} 
+              />
+           </div>
+
+           {/* Right Col: Direction */}
+           <div className="space-y-6">
+              <h3 className="text-xl font-heading tracking-architectural uppercase text-white pb-4 border-b border-[var(--color-border-default)]">
+                 Design Direction
+              </h3>
+              <div>
+                 {formatDirectionAsBullets(result.designDirection)}
+              </div>
+              <div className="pt-2">
+                <CopyButton 
+                  field="designDirection" 
+                  content={result.designDirection} 
+                  copied={copiedField === "designDirection"}
+                  onCopy={copyToClipboard} 
+                />
+              </div>
+           </div>
+        </div>
+
+        {/* AI Prompt Block (Code styling) */}
+        <div className="space-y-6 pt-12 border-t border-[var(--color-border-default)]">
+           <div className="flex items-center justify-between">
+              <h3 className="text-xl font-heading tracking-architectural uppercase text-white">
+                Visualization Prompt
+              </h3>
+              <CopyButton 
+                  field="aiPrompt" 
+                  content={result.aiPrompt} 
+                  copied={copiedField === "aiPrompt"}
+                  onCopy={copyToClipboard} 
+                  label="Copy Prompt"
+              />
+           </div>
+           
+           <div className="relative group">
+              <div className="absolute inset-0 bg-[var(--color-accent)] opacity-5 rounded-lg" />
+              <pre className="relative p-8 rounded-sm bg-[#050505] border border-[var(--color-border-default)] overflow-x-auto text-[var(--color-text-primary)] font-mono text-sm leading-relaxed decoration-clone">
+                <code>
+                  {result.aiPrompt}
+                </code>
+              </pre>
+              <div className="absolute top-0 left-0 w-1 h-full bg-[var(--color-accent)]" />
+           </div>
+        </div>
+
+        {/* Master Output Control */}
+        <div className="pt-24 pb-12 flex justify-center">
+            <button
+            id="copy-all"
+            onClick={() => {
+              const allText = `# ${result.conceptName}\n\n## Story\n${result.conceptStory}\n\n## Direction\n${result.designDirection}\n\n## Prompt\n${result.aiPrompt}`;
+              copyToClipboard(allText, "all");
+            }}
+            className="btn-primary"
+          >
+            {copiedField === "all" ? "✓ DOCUMENT COPIED" : "COPY FULL CONCEPT"}
+          </button>
+        </div>
+
+      </div>
     </div>
+  );
+}
+
+function CopyButton({ field, content, copied, onCopy, label = "Copy text" }: any) {
+  return (
+    <button
+      onClick={() => onCopy(content, field)}
+      className={`
+        inline-flex items-center gap-2 text-xs uppercase tracking-architectural font-medium transition-colors cursor-pointer
+        ${
+          copied
+            ? "text-[var(--color-accent)]"
+            : "text-[var(--color-text-muted)] hover:text-white"
+        }
+      `}
+    >
+      {copied ? (
+        <>
+          <span className="text-base font-sans">✓</span> COPIED
+        </>
+      ) : (
+        <>
+          <span className="text-base font-sans">⎘</span> {label}
+        </>
+      )}
+    </button>
   );
 }

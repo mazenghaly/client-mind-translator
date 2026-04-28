@@ -44,10 +44,10 @@ function BoothBasics({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-2">
+        <h2 className="text-3xl md:text-4xl font-heading uppercase text-[var(--color-text-primary)] mb-2">
           Booth Basics
         </h2>
-        <p className="text-[var(--color-text-secondary)] text-base">
+        <p className="text-[var(--color-text-secondary)] text-sm tracking-architectural uppercase">
           Tell us about your booth dimensions and configuration.
         </p>
       </div>
@@ -56,7 +56,7 @@ function BoothBasics({
         <div className="space-y-2">
           <label
             htmlFor="width"
-            className="block text-sm font-medium text-[var(--color-text-secondary)]"
+            className="block text-xs font-semibold uppercase tracking-architectural text-[var(--color-text-secondary)]"
           >
             Width (meters)
           </label>
@@ -68,14 +68,14 @@ function BoothBasics({
             value={formData.width}
             onChange={(e) => onChange({ width: e.target.value })}
             placeholder="e.g. 6"
-            className="w-full px-4 py-3 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-default)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-border-active)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-glow)] transition-all duration-200"
+            className="w-full px-4 py-3 rounded-sm bg-transparent border border-[var(--color-border-default)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none transition-all duration-200"
           />
         </div>
 
         <div className="space-y-2">
           <label
             htmlFor="depth"
-            className="block text-sm font-medium text-[var(--color-text-secondary)]"
+            className="block text-xs font-semibold uppercase tracking-architectural text-[var(--color-text-secondary)]"
           >
             Depth (meters)
           </label>
@@ -87,13 +87,13 @@ function BoothBasics({
             value={formData.depth}
             onChange={(e) => onChange({ depth: e.target.value })}
             placeholder="e.g. 4"
-            className="w-full px-4 py-3 rounded-xl bg-[var(--color-bg-card)] border border-[var(--color-border-default)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-border-active)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent-glow)] transition-all duration-200"
+            className="w-full px-4 py-3 rounded-sm bg-transparent border border-[var(--color-border-default)] text-[var(--color-text-primary)] placeholder:text-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none transition-all duration-200"
           />
         </div>
       </div>
 
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-[var(--color-text-secondary)]">
+      <div className="space-y-4 pt-4">
+        <label className="block text-xs font-semibold uppercase tracking-architectural text-[var(--color-text-secondary)]">
           Open Sides
         </label>
         <div className="grid grid-cols-4 gap-3">
@@ -103,7 +103,7 @@ function BoothBasics({
               id={`open-sides-${num}`}
               onClick={() => onChange({ openSides: num })}
               className={`
-                py-3 rounded-xl text-center font-semibold text-lg transition-all duration-300 cursor-pointer border
+                py-4 rounded-sm text-center font-heading text-2xl transition-all duration-300 cursor-pointer border
                 ${
                   formData.openSides === num
                     ? "glass-card-active text-[var(--color-text-primary)]"
@@ -134,10 +134,10 @@ function BudgetStep({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-2">
+        <h2 className="text-3xl md:text-4xl font-heading uppercase text-[var(--color-text-primary)] mb-2">
           Budget Range
         </h2>
-        <p className="text-[var(--color-text-secondary)] text-base">
+        <p className="text-[var(--color-text-secondary)] text-sm tracking-architectural uppercase">
           This helps us tailor the complexity and materials of your concept.
         </p>
       </div>
@@ -151,25 +151,24 @@ function BudgetStep({
               id={`budget-${opt.id}`}
               onClick={() => onChange({ budget: opt.id })}
               className={`
-                group relative p-6 rounded-xl border text-center transition-all duration-300 cursor-pointer
+                group relative p-8 rounded-sm border text-left transition-all duration-300 cursor-pointer
                 ${
                   isActive
-                    ? "glass-card-active scale-[1.02]"
-                    : "glass-card hover:border-[var(--color-text-muted)] hover:scale-[1.01]"
+                    ? "glass-card-active"
+                    : "glass-card hover:border-[var(--color-text-muted)] hover:bg-[var(--color-bg-elevated)]"
                 }
               `}
             >
               <div
-                className={`text-2xl font-bold mb-2 transition-colors duration-300 ${
+                className={`text-sm tracking-architectural uppercase mb-4 transition-colors duration-300 block font-semibold ${
                   isActive
                     ? "gradient-text"
                     : "text-[var(--color-text-muted)] group-hover:text-[var(--color-text-secondary)]"
                 }`}
               >
-                {opt.icon}
               </div>
               <h3
-                className={`text-lg font-semibold mb-1 ${
+                className={`text-2xl font-heading mb-2 ${
                   isActive
                     ? "text-[var(--color-text-primary)]"
                     : "text-[var(--color-text-secondary)]"
@@ -209,11 +208,11 @@ function ElementsStep({
 
   return (
     <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-2">
+      <div className="mb-8">
+        <h2 className="text-3xl md:text-4xl font-heading uppercase text-[var(--color-text-primary)] mb-2">
           Required Elements
         </h2>
-        <p className="text-[var(--color-text-secondary)] text-base">
+        <p className="text-[var(--color-text-secondary)] text-sm tracking-architectural uppercase">
           Select everything you need in your booth.
         </p>
       </div>
@@ -244,7 +243,7 @@ function ElementsStep({
               >
                 <span className="text-2xl block mb-2">{el.icon}</span>
                 <span
-                  className={`text-sm font-medium ${
+                  className={`text-sm tracking-architectural uppercase font-semibold ${
                     isActive
                       ? "text-[var(--color-text-primary)]"
                       : "text-[var(--color-text-secondary)]"
@@ -284,7 +283,7 @@ function ElementsStep({
               >
                 <span className="text-2xl block mb-2">{el.icon}</span>
                 <span
-                  className={`text-sm font-medium ${
+                  className={`text-sm tracking-architectural uppercase font-semibold ${
                     isActive
                       ? "text-[var(--color-text-primary)]"
                       : "text-[var(--color-text-secondary)]"
@@ -329,11 +328,11 @@ function PersonalityStep({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-2">
+      <div className="mb-8">
+        <h2 className="text-3xl md:text-4xl font-heading uppercase text-[var(--color-text-primary)] mb-2">
           Brand Personality
         </h2>
-        <p className="text-[var(--color-text-secondary)] text-base">
+        <p className="text-[var(--color-text-secondary)] text-sm tracking-architectural uppercase">
           Define the character and mood of your booth.
         </p>
       </div>
@@ -341,7 +340,7 @@ function PersonalityStep({
       <div className="space-y-5">
         {pairs.map((pair) => (
           <div key={pair.key} className="space-y-2">
-            <label className="block text-sm font-medium text-[var(--color-text-muted)] uppercase tracking-wider">
+            <label className="block text-xs font-semibold tracking-architectural text-[var(--color-text-muted)] uppercase mb-3 border-b border-[var(--color-border-default)] pb-2">
               {pair.label}
             </label>
             <div className="grid grid-cols-2 gap-3">
@@ -361,7 +360,7 @@ function PersonalityStep({
                       })
                     }
                     className={`
-                      py-4 px-6 rounded-xl border text-center font-semibold text-base transition-all duration-300 cursor-pointer
+                      py-4 px-6 rounded-sm border text-center font-heading text-xl transition-all duration-300 cursor-pointer tracking-wider
                       ${
                         isActive
                           ? "glass-card-active text-[var(--color-text-primary)]"
@@ -398,11 +397,11 @@ function RestrictionsStep({
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-semibold text-[var(--color-text-primary)] mb-2">
+      <div className="mb-8">
+        <h2 className="text-3xl md:text-4xl font-heading uppercase text-[var(--color-text-primary)] mb-2">
           What Should We Avoid?
         </h2>
-        <p className="text-[var(--color-text-secondary)] text-base">
+        <p className="text-[var(--color-text-secondary)] text-sm tracking-architectural uppercase">
           Select anything you don&apos;t want in the final design.
         </p>
       </div>
@@ -416,17 +415,17 @@ function RestrictionsStep({
               id={`restriction-${r.id}`}
               onClick={() => toggle(r.id)}
               className={`
-                p-5 rounded-xl border text-center transition-all duration-300 cursor-pointer
+                p-6 rounded-sm border text-left transition-all duration-300 cursor-pointer flex flex-col justify-between min-h-[120px]
                 ${
                   isActive
                     ? "glass-card-active"
-                    : "glass-card hover:border-[var(--color-text-muted)]"
+                    : "glass-card hover:border-[var(--color-text-muted)] hover:bg-[var(--color-bg-elevated)]"
                 }
               `}
             >
               <span className="text-3xl block mb-3">{r.icon}</span>
               <span
-                className={`text-sm font-medium ${
+                className={`text-sm tracking-architectural uppercase font-semibold mt-auto ${
                   isActive
                     ? "text-[var(--color-text-primary)]"
                     : "text-[var(--color-text-secondary)]"

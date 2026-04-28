@@ -38,37 +38,37 @@ export default function PriceEstimator({ formData }: PriceEstimatorProps) {
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <span className="text-base">💰</span>
-            <span className="text-sm font-semibold text-[var(--color-text-primary)]">
+            <span className="text-sm font-semibold text-[var(--color-text-primary)] uppercase tracking-architectural">
               Price Estimator
             </span>
           </div>
           <ConfidenceBadge level={confidenceLevel} />
         </div>
-        <p className="text-xs text-[var(--color-text-muted)]">
+        <p className="text-[10px] uppercase tracking-architectural text-[var(--color-text-muted)]">
           Updates live as you fill in steps
         </p>
       </div>
 
       {/* Total range — hero block */}
-      <div className="px-5 py-5 bg-gradient-to-br from-[rgba(99,102,241,0.08)] to-[rgba(168,85,247,0.05)]">
-        <p className="text-xs uppercase tracking-widest text-[var(--color-text-muted)] mb-2">
+      <div className="px-5 py-6 bg-gradient-to-br from-[var(--color-bg-elevated)] to-[var(--color-bg-card)]">
+        <p className="text-xs uppercase tracking-architectural text-[var(--color-accent)] font-semibold mb-3">
           Estimated Total
         </p>
         <div className="flex items-end gap-2 flex-wrap">
-          <span className="text-3xl font-bold gradient-text leading-none">
+          <span className="text-4xl font-heading tracking-wider text-white leading-none">
             {formatCurrency(estimate.minTotal)}
           </span>
-          <span className="text-[var(--color-text-muted)] text-lg mb-0.5">—</span>
-          <span className="text-3xl font-bold gradient-text leading-none">
+          <span className="text-[var(--color-text-muted)] text-xl font-light mb-0.5">—</span>
+          <span className="text-4xl font-heading tracking-wider text-white leading-none">
             {formatCurrency(estimate.maxTotal)}
           </span>
         </div>
-        <p className="text-xs text-[var(--color-text-muted)] mt-2">
+        <p className="text-[10px] uppercase tracking-architectural text-[var(--color-text-muted)] mt-4 block">
           For {estimate.area} m² booth · All prices in USD
         </p>
 
         {/* Mini range bar */}
-        <div className="mt-4">
+        <div className="mt-6">
           <RangeBar
             min={estimate.minTotal}
             max={estimate.maxTotal}
@@ -79,7 +79,7 @@ export default function PriceEstimator({ formData }: PriceEstimatorProps) {
 
       {/* Breakdown */}
       <div className="px-5 pb-5 pt-4 space-y-1">
-        <p className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-muted)] mb-3">
+        <p className="text-[10px] font-semibold uppercase tracking-architectural text-[var(--color-text-muted)] mb-4">
           Cost Breakdown
         </p>
         {estimate.breakdown.map((item, i) => (
@@ -118,12 +118,12 @@ function BreakdownRow({
 }) {
   return (
     <div
-      className="flex items-start gap-3 py-2 px-3 rounded-lg hover:bg-[var(--color-bg-elevated)] transition-colors duration-200 group"
+      className="flex items-start gap-4 py-3 px-3 rounded-sm hover:bg-[var(--color-bg-elevated)] transition-colors duration-200 group border border-transparent hover:border-[var(--color-border-default)]"
       style={{ animationDelay: `${index * 60}ms` }}
     >
-      <span className="text-base mt-0.5 flex-shrink-0">{item.icon}</span>
+      <span className="text-lg mt-0.5 flex-shrink-0 opacity-80">{item.icon}</span>
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-[var(--color-text-secondary)] truncate">
+        <p className="text-xs uppercase tracking-architectural font-medium text-[var(--color-text-primary)] truncate mb-0.5">
           {item.label}
         </p>
         <p className="text-[10px] text-[var(--color-text-muted)] truncate">
@@ -131,10 +131,10 @@ function BreakdownRow({
         </p>
       </div>
       <div className="text-right flex-shrink-0">
-        <p className="text-xs font-semibold text-[var(--color-text-primary)] tabular-nums">
+        <p className="text-sm font-semibold text-[var(--color-text-primary)] tabular-nums font-mono">
           {formatCurrency(item.minAmount)}
         </p>
-        <p className="text-[10px] text-[var(--color-text-muted)] tabular-nums">
+        <p className="text-[10px] text-[var(--color-text-muted)] tabular-nums font-mono">
           – {formatCurrency(item.maxAmount)}
         </p>
       </div>
