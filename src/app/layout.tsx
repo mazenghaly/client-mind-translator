@@ -9,15 +9,15 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Client Mind Translator — Booth Concept Generator",
+  title: "3D Booth Design Assistant — by RG Designs",
   description:
-    "Transform your booth vision into a clear design concept with AI-powered guidance. Define your style, budget, and elements to get a complete design direction.",
+    "A premium 7-step tool for designing world-class exhibition booths. Define booth type, style, structure, elements, brand, and budget to generate a complete 3D design concept.",
   keywords: [
-    "booth design",
-    "exhibition",
-    "concept generator",
-    "trade show",
-    "AI design",
+    "3D booth design",
+    "exhibition design",
+    "booth concept generator",
+    "trade show booth",
+    "RG Designs",
   ],
 };
 

@@ -290,17 +290,34 @@ export function analyzeClientBrief(text: string): BriefAnalysis {
     openSides,
   };
 
-  // Classify elements into must-have vs nice-to-have
-  const mustHaveIds  = ["reception", "led-screen", "storage", "meeting-area"];
-  const niceToHaveIds = ["coffee-bar", "shelves", "interactive-display"];
+  // Classify elements into tiers using new FormData fields
+  const mustHaveIds   = ["reception", "led-screen", "storage", "meeting-area", "product-display", "branding-wall"];
+  const engagementIds = ["coffee-bar", "shelves", "interactive-display", "demo-station", "photo-spot"];
+  const premiumIds    = ["vip-lounge", "augmented-reality", "live-streaming", "custom-flooring", "hologram"];
+
+  // Map industry label to the new industry IDs used in FormData
+  const industryIdMap: Record<string, string> = {
+    "Technology":  "technology",
+    "F&B":         "food-beverage",
+    "Fashion":     "fashion-retail",
+    "Healthcare":  "healthcare",
+    "Retail":      "fashion-retail",
+    "Finance":     "finance",
+    "Real Estate": "architecture",
+    "Education":   "education",
+    "Automotive":  "automotive",
+    "Government":  "technology",
+  };
 
   const suggestedFormData: Partial<FormData> = {
     ...(style                    && { style }),
     ...(budget                   && { budget }),
     ...(boothSize                && { width: boothSize.width, depth: boothSize.depth }),
     ...(openSides                && { openSides }),
-    mustHave:   elements.filter((e) => mustHaveIds.includes(e)),
-    niceToHave: elements.filter((e) => niceToHaveIds.includes(e)),
+    ...(industry                 && { industry: industryIdMap[industry] ?? "" }),
+    mustHave:     elements.filter((e) => mustHaveIds.includes(e)),
+    engagement:   elements.filter((e) => engagementIds.includes(e)),
+    premiumAddOns: elements.filter((e) => premiumIds.includes(e)),
   };
 
   return {

@@ -1,19 +1,14 @@
 "use client";
 
 import React, { useState, useCallback, useEffect } from "react";
-import {
-  FormData,
-  ConceptResult,
-  INITIAL_FORM_DATA,
-  STEP_TITLES,
-} from "@/lib/types";
+import { FormData, ConceptResult, INITIAL_FORM_DATA, STEP_TITLES } from "@/lib/types";
 import { generateClientConcept } from "@/lib/generateConcept";
-import StyleSelector from "./StyleSelector";
 import FormStep from "./FormStep";
 import OutputScreen from "./OutputScreen";
 import PriceEstimator from "./PriceEstimator";
+import BriefAnalyzer from "./BriefAnalyzer";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7;
 
 interface StepWizardProps {
   initialData?: Partial<FormData>;
@@ -27,7 +22,6 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
   const [isGenerating, setIsGenerating] = useState(false);
   const [direction, setDirection] = useState<"forward" | "back">("forward");
 
-  // When parent provides new pre-filled data, merge it in and reset to step 1
   useEffect(() => {
     if (initialData) {
       setFormData({ ...INITIAL_FORM_DATA, ...initialData });
@@ -42,28 +36,14 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
 
   const isStepValid = useCallback((): boolean => {
     switch (currentStep) {
-      case 1:
-        return formData.style !== "";
-      case 2:
-        return (
-          formData.width !== "" &&
-          formData.depth !== "" &&
-          formData.openSides !== ""
-        );
-      case 3:
-        return formData.budget !== "";
-      case 4:
-        return true; // Elements are optional
-      case 5:
-        return (
-          formData.personality.tone !== "" &&
-          formData.personality.aesthetic !== "" &&
-          formData.personality.feel !== ""
-        );
-      case 6:
-        return true; // Restrictions are optional
-      default:
-        return false;
+      case 1: return formData.boothType !== "" && formData.industry !== "";
+      case 2: return formData.style !== "" && formData.lighting !== "";
+      case 3: return formData.width !== "" && formData.depth !== "" && formData.openSides !== "" && formData.layoutType !== "";
+      case 4: return true;
+      case 5: return formData.personality.tone !== "" && formData.personality.aesthetic !== "" && formData.personality.feel !== "";
+      case 6: return formData.budget !== "";
+      case 7: return true;
+      default: return false;
     }
   }, [currentStep, formData]);
 
@@ -72,10 +52,8 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
       setDirection("forward");
       setCurrentStep((s) => s + 1);
     } else {
-      // Generate result
       setIsGenerating(true);
-      // Simulated delay for polish
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1800));
       const concept = generateClientConcept(formData);
       setResult(concept);
       setIsGenerating(false);
@@ -96,12 +74,16 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
     setDirection("forward");
   };
 
-  // If we have a result, show the output
+  const handleApply = (data: Partial<FormData>) => {
+    setFormData({ ...INITIAL_FORM_DATA, ...data });
+    setCurrentStep(1);
+    setResult(null);
+  };
+
   if (result) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        {analyzerSlot}
         <main className="flex-1 px-4 py-8">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
@@ -116,12 +98,10 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
     );
   }
 
-  // Loading state
   if (isGenerating) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
-        {analyzerSlot}
         <main className="flex-1 flex items-center justify-center">
           <div className="text-center space-y-6 fade-in">
             <div className="relative w-20 h-20 mx-auto">
@@ -130,12 +110,8 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
               <div className="absolute inset-3 rounded-full border-2 border-transparent border-t-[var(--color-gradient-end)] animate-spin" style={{ animationDirection: "reverse", animationDuration: "1.5s" }} />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">
-                Generating Your Concept
-              </h2>
-              <p className="text-[var(--color-text-secondary)]">
-                Analyzing your preferences and crafting a unique design direction...
-              </p>
+              <h2 className="text-xl font-semibold text-[var(--color-text-primary)] mb-2">Generating Your Concept</h2>
+              <p className="text-[var(--color-text-secondary)]">Crafting a unique 3D booth design direction...</p>
             </div>
           </div>
         </main>
@@ -148,7 +124,11 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
   return (
     <div id="wizard-section" className="min-h-screen flex flex-col">
       <Header />
-      {analyzerSlot}
+      <div className="border-b border-[var(--color-border-default)] bg-[var(--color-bg-secondary)]">
+        <div className="max-w-5xl mx-auto px-4 py-3">
+          <BriefAnalyzer onApply={handleApply} />
+        </div>
+      </div>
 
       <main className="flex-1 px-4 py-6">
         <div className="max-w-5xl mx-auto">
@@ -159,60 +139,27 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
               {/* Progress */}
               <div className="mb-8 space-y-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[var(--color-text-muted)] font-medium">
-                    Step {currentStep} of {TOTAL_STEPS}
-                  </span>
-                  <span className="text-[var(--color-text-muted)]">
-                    {STEP_TITLES[currentStep - 1]}
-                  </span>
+                  <span className="text-[var(--color-text-muted)] font-medium">Step {currentStep} of {TOTAL_STEPS}</span>
+                  <span className="text-[var(--color-text-muted)]">{STEP_TITLES[currentStep - 1]}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-[var(--color-bg-card)] overflow-hidden">
-                  <div
-                    className="h-full rounded-full progress-bar-fill transition-all duration-500 ease-out"
-                    style={{ width: `${progress}%` }}
-                  />
+                  <div className="h-full rounded-full progress-bar-fill transition-all duration-500 ease-out" style={{ width: `${progress}%` }} />
                 </div>
-
-                {/* Step dots */}
                 <div className="flex justify-between px-1">
-                  {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map(
-                    (step) => (
-                      <div
-                        key={step}
-                        className={`
-                        w-2 h-2 rounded-full transition-all duration-300
-                        ${
-                          step < currentStep
-                            ? "bg-[var(--color-accent)]"
-                            : step === currentStep
-                              ? "bg-[var(--color-accent)] pulse-glow"
-                              : "bg-[var(--color-bg-elevated)]"
-                        }
-                      `}
-                      />
-                    )
-                  )}
+                  {Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1).map((step) => (
+                    <div key={step} className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      step < currentStep ? "bg-[var(--color-accent)]"
+                      : step === currentStep ? "bg-[var(--color-accent)] pulse-glow"
+                      : "bg-[var(--color-bg-elevated)]"
+                    }`} />
+                  ))}
                 </div>
               </div>
 
               {/* Step Content */}
-              <div
-                key={currentStep}
-                className={direction === "forward" ? "slide-up" : "fade-in"}
-              >
+              <div key={currentStep} className={direction === "forward" ? "slide-up" : "fade-in"}>
                 <div className="glass-card p-6 sm:p-8">
-                  {currentStep === 1 ? (
-                    <StyleSelector
-                      selected={formData.style}
-                      onSelect={(style) => updateFormData({ style })}
-                    />
-                  ) : (
-                    <FormStep
-                      step={currentStep}
-                      formData={formData}
-                      onChange={updateFormData}
-                    />
-                  )}
+                  <FormStep step={currentStep} formData={formData} onChange={updateFormData} />
                 </div>
               </div>
 
@@ -222,21 +169,11 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
                   id="btn-back"
                   onClick={handleBack}
                   disabled={currentStep === 1}
-                  className={`btn-secondary ${
-                    currentStep === 1
-                      ? "opacity-0 pointer-events-none"
-                      : ""
-                  }`}
+                  className={`btn-secondary ${currentStep === 1 ? "opacity-0 pointer-events-none" : ""}`}
                 >
                   <span className="flex items-center gap-2">
                     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M10 3L5 8L10 13"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
+                      <path d="M10 3L5 8L10 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                     Back
                   </span>
@@ -253,26 +190,14 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
                       <>
                         Generate Concept
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path
-                            d="M2 8H14M8 2L14 8L8 14"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
+                          <path d="M2 8H14M8 2L14 8L8 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </>
                     ) : (
                       <>
                         Next
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path
-                            d="M6 3L11 8L6 13"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          />
+                          <path d="M6 3L11 8L6 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </>
                     )}
@@ -285,7 +210,6 @@ export default function StepWizard({ initialData, analyzerSlot }: StepWizardProp
             <div className="lg:sticky lg:top-24">
               <PriceEstimator formData={formData} />
             </div>
-
           </div>
         </div>
       </main>
@@ -299,26 +223,13 @@ function Header() {
       <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[var(--color-gradient-start)] to-[var(--color-gradient-end)] flex items-center justify-center shadow-lg shadow-[var(--color-accent-glow)]">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 18 18"
-              fill="none"
-              className="text-white"
-            >
-              <path
-                d="M9 1L11.5 6.5L17 9L11.5 11.5L9 17L6.5 11.5L1 9L6.5 6.5L9 1Z"
-                fill="currentColor"
-              />
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="text-white">
+              <path d="M9 1L11.5 6.5L17 9L11.5 11.5L9 17L6.5 11.5L1 9L6.5 6.5L9 1Z" fill="currentColor" />
             </svg>
           </div>
           <div>
-            <h1 className="text-lg font-bold text-[var(--color-text-primary)] leading-tight">
-              Client Mind Translator
-            </h1>
-            <p className="text-xs text-[var(--color-text-muted)] leading-tight">
-              Booth Concept Generator
-            </p>
+            <h1 className="text-lg font-bold text-[var(--color-text-primary)] leading-tight">3D Booth Design Assistant</h1>
+            <p className="text-xs text-[var(--color-text-muted)] leading-tight">by RG Designs</p>
           </div>
         </div>
         <div className="hidden sm:flex items-center gap-2 text-xs text-[var(--color-text-muted)]">

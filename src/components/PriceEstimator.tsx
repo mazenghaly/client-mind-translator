@@ -22,7 +22,7 @@ export default function PriceEstimator({ formData }: PriceEstimatorProps) {
             Price Estimator
           </p>
           <p className="text-xs text-[var(--color-text-muted)] mt-1 leading-relaxed">
-            Complete Steps 2 & 3 to see your estimated budget range.
+            Complete Steps 3 & 6 to see your estimated budget range.
           </p>
         </div>
       </div>
@@ -212,9 +212,10 @@ function getConfidenceLevel(data: FormData): ConfidenceLevel {
   if (data.style)   score++;
   if (data.budget)  score++;
   if (data.width && data.depth) score++;
-  if (data.mustHave.length > 0 || data.niceToHave.length > 0) score++;
+  if (data.mustHave.length > 0 || data.engagement.length > 0 || data.premiumAddOns.length > 0) score++;
   if (data.personality.tone) score++;
+  if (data.boothType) score++;
   if (score <= 2) return "low";
-  if (score <= 3) return "medium";
+  if (score <= 4) return "medium";
   return "high";
 }
